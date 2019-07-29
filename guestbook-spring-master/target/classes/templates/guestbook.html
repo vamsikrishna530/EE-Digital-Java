@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Guestbook</title>
+
+    <link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+
+</head>
+<body>
+	<div class="text-center">
+		<a sec:authorize="isAnonymous()" href="/login">Login</a>
+		<a sec:authorize="isAuthenticated()" href="/logout">Logout</a>
+	</div>
+    <img th:src="@{/images/logo.png}" />
+
+    <h1>Spring Guestbook</h1>
+
+    <div th:if="${entries.isEmpty()}">
+        <p>There are no comments in the Guestbook. What a pity.</p>
+    </div>
+
+<sec:authorize access="hasRole('ADMIN')">
+
+    <div th:if="${!entries.isEmpty()}">
+        <table>
+            <tr>
+                <th>User</th><th>Comment</th><th></th><th></th>
+            </tr>
+            <tr th:each="entry: ${entries}">
+                <td th:text="${entry.user}"></td>
+                <td th:text="${entry.comment}"></td>                
+                <td><a th:href="@{'/delete/' + ${entry.id}}">Delete</a></td>
+                <td><a th:href="@{'/update/' + ${entry.id}}">Update</a></td>
+            </tr>
+        </table>
+    </div>
+</sec:authorize>
+    <h2 th:text="${formHeader}"></h2>
+
+    <form th:object="${newEntry}" method="post">
+        <label>User: </label>
+        <input type="text" size="32" th:field="*{user}" />
+        <label>Comment: </label>
+        <input type="text" size="64" th:field="*{comment}" />
+
+        <input type="submit" value="Submit" />
+        <input type="reset" value="Reset" />
+        <p class="warning" th:if="${#fields.hasErrors('user')}">User cannot be empty.</p>
+        <p class="warning" th:if="${#fields.hasErrors('comment')}">Comment cannot be empty.</p>
+    </form>
+
+</body>
+</html>
